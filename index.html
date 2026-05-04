@@ -2792,7 +2792,7 @@ function saveWrongNote() {
   renderSubjectChips();
   document.querySelectorAll('#reason-chips .chip').forEach(c => c.classList.remove('selected'));
 
-  showToast(`✅ 저장 완료! 1일/3일/7일 후 복습 예정`);
+  showToast(`✅ 저장 완료!`);
   updateReviewBadge();
   setTimeout(() => switchReviewTab('review'), 1500);
 }
@@ -3425,11 +3425,36 @@ async function runAnalysis(base64, mediaType, examName, apiKey) {
   };
   const books = (workbookMap[detail] || workbookMap[subject] || ['쎈','RPM','자이스토리','수능완성']).join(', ');
 
-  // 프롬프트 - 출처 추적 핵심 강조
+  // 프롬프트 - 미적분 특화 강화
+  const isMijeokbun = detail === '미적분' || detail === '수학II';
+  const mijeokbunExtra = isMijeokbun ? `
+【미적분 문제 분석 특별 지침】
+이 시험지는 수능/내신 미적분 문제야. 아래 기준으로 각 문제를 정밀 분석해라:
+
+▶ 단원 분류 (반드시 명시):
+  - 극한: 함수의 극한, 연속, 불연속점
+  - 미분: 미분계수 정의, 도함수, 접선, 증감표, 극값
+  - 적분: 부정적분, 정적분, 넓이/부피, 속도/거리
+  - 복합: 미분+적분 연계, 합성함수 미분, 역함수 미분
+
+▶ 문제 유형 특징:
+  - 쎈/RPM: A/B/C 단계 난이도, 유형번호 붙은 반복 계산형
+  - 블랙라벨: 고난도 복합 사고력 문제, 킬러 유형
+  - 마플시너지: 개념-유형-실전 3단계, 중상 난이도
+  - 자이스토리: 수능 기출 변형, 실전형 선택지 구성
+  - 수능완성: EBS 연계, 실전모의고사 스타일
+  - RPM: 유형별 집중훈련, 계산 반복 숙달용
+
+▶ 판단 근거에 반드시 포함할 것:
+  1. 사용된 미적분 공식/개념
+  2. 문제 풀이 접근법 (치환, 부분적분, 정적분 계산 등)
+  3. 해당 문제집의 몇 단원 몇 번 유형과 유사한지
+` : '';
+
   const prompt = `너는 ${grade} ${detail} 시험지 이미지를 분석하는 전문 AI야. 반드시 JSON만 반환해. 마크다운, 설명, 코드블록 절대 금지.
 
 【핵심 임무】시험지의 각 문제를 보고, 아래 문제집 중 어느 문제집의 어떤 유형/단원 문제와 가장 유사한지 정확히 밝혀라.
-
+${mijeokbunExtra}
 【문제집 유사도 판단 방법】
 1. 문제의 발문 형식, 선지 구성, 자료 제시 방식, 계산 구조를 분석해라
 2. 각 문제집의 특징적인 출제 스타일을 반영해라:
@@ -3437,7 +3462,7 @@ async function runAnalysis(base64, mediaType, examName, apiKey) {
    - 자이스토리: 기출 변형 위주, 실전 감각 훈련
    - 수능완성/수능특강: EBS 연계 스타일, 지문/자료 분석형
    - 마더텅: 기출 원문 중심, 해설 상세
-   - 오투/개념플러스유형: 개념 확인 -> 유형 적용 단계별 구성
+   - 블랙라벨/마플시너지: 고난도 사고력 문제
 3. 문제 난이도, 출제 의도, 사용된 개념/공식의 조합으로 출처를 추론해라
 4. 확신이 없어도 반드시 가장 유사한 문제집을 선택하고 근거를 써라. source 필드를 절대 비워두지 마라.
 
