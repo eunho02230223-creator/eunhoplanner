@@ -2872,10 +2872,10 @@ function renderReviewList() {
 
     if (!todayResult) {
       card.querySelector('.review-btn.ok').addEventListener('click', () => {
-        recordReview(note.id, 'ok'); renderReviewList(); updateReviewBadge(); showToast('✅ 잘 이해했어요!');
+        recordReview(note.id, 'ok'); renderReviewList(); updateReviewBadge(); showToast('✅ 저장 완료!');
       });
       card.querySelector('.review-btn.fail').addEventListener('click', () => {
-        recordReview(note.id, 'fail'); renderReviewList(); updateReviewBadge(); showToast('📌 한 번 더 복습하세요!');
+        recordReview(note.id, 'fail'); renderReviewList(); updateReviewBadge(); showToast('✅ 저장 완료!');
       });
     }
     list.appendChild(card);
@@ -2922,7 +2922,9 @@ function renderWrongAllList() {
     row.querySelector('.wrong-del-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       wrongNotes = wrongNotes.filter(n => n.id !== note.id);
-      saveWrongNotes(); renderWrongAllList(); updateReviewBadge();
+      saveWrongNotes(); updateReviewBadge();
+      row.remove();
+      if (!wrongNotes.length) renderWrongAllList();
     });
     list.appendChild(row);
   });
